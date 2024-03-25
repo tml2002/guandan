@@ -164,12 +164,6 @@ for i in range(4):
     summary_text.grid(row=1, column=0, sticky='nsew')
     player_summaries[i] = summary_text
 
-# 调整中间框架的权重以减少它的大小，将更多空间分配给玩家区域
-center_frame = ctk.CTkFrame(window, corner_radius=10)
-center_frame.grid(row=1, column=1, padx=50, pady=20, sticky='nsew')
-window.grid_columnconfigure(1, weight=2)
-window.grid_rowconfigure(1, weight=1)  # 增加中间区域的权重，使其更高
-
 # 设置中间框架的背景色和画布的背景色相同
 center_frame = ctk.CTkFrame(window, corner_radius=10)
 center_frame.grid(row=1, column=1, padx=50, pady=50, sticky='nsew')
@@ -181,15 +175,6 @@ center_canvas = tk.Canvas(center_frame, bg='white', highlightthickness=0)
 center_canvas.grid(row=0, column=0, sticky='nsew')
 center_frame.grid_rowconfigure(0, weight=1)
 center_frame.grid_columnconfigure(0, weight=1)
-
-
-# # 创建中间画布，用于显示玩家出牌
-# center_frame = ctk.CTkFrame(window, corner_radius=10)
-# center_frame.grid(row=1, column=1, padx=50, pady=50, sticky='nsew')
-# center_canvas = tk.Canvas(center_frame, bg='white', highlightthickness=0)
-# center_canvas.grid(row=0, column=0, sticky='nsew')
-# center_frame.grid_rowconfigure(0, weight=1)
-# center_frame.grid_columnconfigure(0, weight=1)
 
 # 创建开始游戏按钮，并使用grid来定位它
 start_button = ctk.CTkButton(window, text="Start Game", command=start_game)

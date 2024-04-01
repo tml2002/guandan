@@ -12,6 +12,7 @@
 
 ```bash
 pip install customtkinter pillow
+```
 
 ## 自定义
 要自定义可视化工具，请修改脚本中的路径、文件名或UI元素。

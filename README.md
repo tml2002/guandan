@@ -23,4 +23,4 @@ pip install customtkinter pillow
 
 ## 运行
 ```bash
-python TOM3,py
+python TOM3.py

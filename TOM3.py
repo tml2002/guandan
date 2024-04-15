@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 from customtkinter import CTkCanvas, CTkButton
 from tkinter import scrolledtext
 
-with open('TOM3.json', 'r', encoding='utf-8') as file:
+with open('qwen_32b-chat-v1.5-q6_K_vs_RLapi_k_1_k1_output2.json', 'r', encoding='utf-8') as file:
     json_data = json.load(file)
 
 def get_card_image(card):

@@ -41,14 +41,17 @@ def display_round_data(round_number):
 
             player_index = player['玩家索引']
             hand = player['手牌']
-            summary = player['TOM']
+            summary = player['解说']
             played_cards = player.get('玩家出牌', [])  # 使用get方法,默认为空列表
 
-            # 清除画布和文本框中的内容
             player_boxes[player_index].delete('all')
             player_summaries[player_index].delete('1.0', tk.END)
 
-            # 在画布上显示牌
+            # 从手牌中移除已出的牌
+            for card in played_cards:
+                if card in hand:
+                    hand.remove(card)
+
             x, y = 0, 0
             photo_references = []  # A new list to store photo references
             for i, card in enumerate(hand):
@@ -66,18 +69,20 @@ def display_round_data(round_number):
                         y += 65  # Adjust the next row's vertical position
             player_boxes[player_index].photos = photo_references  # Attach the list of photo references to the canvas
 
-            # 在文本框中显示简短记忆摘要
             player_summaries[player_index].insert(tk.INSERT, summary)
 
-    # 在中间画布上显示所有玩家的出牌
-    cx, cy = center_canvas.winfo_width() // 2, center_canvas.winfo_height() // 2
+    cx, cy = 50, 50  # 初始位置
     center_photo_references = []  # A list to store photo references for center canvas
     for player in json_data:
         if player['轮次'] == round_number:
             played_cards = player.get('玩家出牌', [])
-            cx = 50  # Start 10 pixels from the left edge
-            cy = center_canvas_height // 2  # Vertically centered
+            player_id = player.get('玩家索引', "")
+            center_canvas.create_text(170, cy + 60, text=f"玩家: {player_id}", font=("Arial", 24), fill="black",
+                                      anchor='w')
             if played_cards:
+                # center_canvas.create_text(210, cy + 60, text=f"ID: {player_id}", font=("Arial", 24), fill="black",
+                #                           anchor='w')
+
                 for card in played_cards:
                     card_image = get_card_image(card)
                     if card_image:
@@ -85,14 +90,20 @@ def display_round_data(round_number):
                         image = Image.open(image_path)
                         image = image.resize((50, 60))
                         photo = ImageTk.PhotoImage(image)
-                        center_canvas.create_image(cx, cy, image=photo, anchor='center')
+                        center_canvas.create_image(cx, cy, image=photo, anchor='w')
                         center_photo_references.append(photo)
                         cx += 55
-                cx = center_canvas.winfo_width() // 2  # Reset the horizontal position for the next player
+                cy += 80 
+                cx = 50 
             else:
                 # 如果玩家没有出牌,显示"PASS"
-                center_canvas.create_text(210, cy, text="PASS", font=("Arial", 24), fill="black")
+                # center_canvas.create_text(cx+50, cy, text=f"ID: {player_id} PASS", font=("Arial", 24), fill="black",
+                #                           anchor='w')
+                center_canvas.create_text(220, cy+10, text="PASS", font=("Arial", 24), fill="red")
+                cy += 30 
+
     center_canvas.photos = center_photo_references
+
 
 def update_rounds():
     current_round = 1
@@ -112,18 +123,15 @@ def start_game():
     else:
         print("No valid round numbers found in the JSON data.")
 
-# 初始化窗口
 window = ctk.CTk()
 window.title("Guan Dan Game Visualizer")
-window.geometry('1920x1080')  # 设置窗口大小
+window.geometry('1920x1080') 
 
-# 定义字典来保存每个玩家的画布和文本框部件
 player_boxes = {}
 player_summaries = {}
 
 player_area_weight = 6
 
-# 创建框架以包含每个玩家的画布，并在网格中定位它们
 for i in range(4):
     frame = ctk.CTkFrame(window, corner_radius=10)
     if i == 0:
@@ -135,22 +143,18 @@ for i in range(4):
     else:
         frame.grid(row=2, column=0, padx=50, pady=20, sticky='nsew')
 
-    # 调整整个窗口的权重，给玩家区域更多空间
     window.grid_columnconfigure(i % 2 * 2, weight=3)
     window.grid_rowconfigure(i // 2 * 2, weight=3)
 
     canvas = tk.Canvas(frame, bg='white', highlightthickness=0)
     canvas.grid(row=0, column=0, sticky='nsew')
 
-    # 调整框架内画布的权重，以便为牌提供更多空间
-    frame.grid_rowconfigure(0, weight=4)  # 增加玩家区域的垂直空间
+    frame.grid_rowconfigure(0, weight=4) 
     frame.grid_columnconfigure(0, weight=4)
     player_boxes[i] = canvas
 
-    # 减小文本框区域的权重
     frame.grid_rowconfigure(1, weight=1)
 
-    # 创建滚动文本区域用于显示简短记忆摘要
     summary_text = scrolledtext.ScrolledText(
         frame,
         wrap='word',
@@ -164,23 +168,18 @@ for i in range(4):
     summary_text.grid(row=1, column=0, sticky='nsew')
     player_summaries[i] = summary_text
 
-# 设置中间框架的背景色和画布的背景色相同
 center_frame = ctk.CTkFrame(window, corner_radius=10)
 center_frame.grid(row=1, column=1, padx=50, pady=50, sticky='nsew')
 window.grid_columnconfigure(1, weight=1)
-window.grid_rowconfigure(1, weight=2)  # 增加中间区域的权重，使其更高
+window.grid_rowconfigure(1, weight=2) 
 
-# 确保画布的背景色与框架背景色相匹配，并且填充整个框架
 center_canvas = tk.Canvas(center_frame, bg='white', highlightthickness=0)
 center_canvas.grid(row=0, column=0, sticky='nsew')
 center_frame.grid_rowconfigure(0, weight=1)
 center_frame.grid_columnconfigure(0, weight=1)
 
 
-# 创建开始游戏按钮，并使用grid来定位它
 start_button = ctk.CTkButton(window, text="Start Game", command=start_game)
-# 将按钮放在窗口底部中央位置，并使其跨越所有列
 start_button.grid(row=3, column=0, columnspan=3, pady=50)
 
-# 运行主窗口循环
 window.mainloop()
